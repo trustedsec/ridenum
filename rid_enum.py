@@ -161,7 +161,7 @@ try:
 				user_fixed = user.replace("\\", "\\\\")
 				# brute force, single quotes in names mess things up
 				if not "'" in user:
-					child = pexpect.spawn("rpcclient -U %s%%%s %s" % (user_fixed, password, ip))
+					child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
 					i = child.expect(['LOGON_FAILURE', 'rpcclient'])
 					if i == 0:
 						print "Failed guessing username of %s and password of %s" % (user, password)
