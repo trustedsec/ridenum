@@ -116,7 +116,7 @@ try:
 		print "[!] Unable to enumerate user accounts, sorry..Must not be vulnerable."
 		sys.exit()	
 
-	print "[*] Enumerating user accounts.. This could take a little while.\n"
+	print "[*] Enumerating user accounts.. This could take a little while."
 	# assign rid start and stop as integers
 	rid_start = int(rid_start)
 	rid_stop = int(rid_stop)
@@ -132,7 +132,7 @@ try:
 		sidname = sid_to_name(ip, sid, rid_start)
 		if sidname != None:
 			# print the sid
-			print sidname
+			print "Account name: " + sidname
 			# write the file out
 			filewrite.write(sidname + "\n")
 
@@ -142,9 +142,10 @@ try:
 	# close the file
 	filewrite.close()
 
+	print "[*] Finished enumerating user accounts... Seemed to be successful."
+
 	# if we specified a password list
 	if passwords != "":
-		print "\n"
 		# our password file
 		passfile = file(passwords, "r").readlines()
 		
@@ -159,10 +160,10 @@ try:
 				# strip unused characters
 				user = user.rstrip()
 				# insert additional backslash for rpcclient compliance
-				user = user.replace("\\", "\\\\")
+				user_fixed = user.replace("\\", "\\\\")
 				# brute force, single quotes in names mess things up
 				if not "'" in user:
-					child = pexpect.spawn("rpcclient -U %s%%%s %s" % (user, password, ip))
+					child = pexpect.spawn("rpcclient -U %s%%%s %s" % (user_fixed, password, ip))
 					i = child.expect(['LOGON_FAILURE', 'rpcclient'])
 					if i == 0:
 						print "Failed guessing username of %s and password of %s" % (user, password)
