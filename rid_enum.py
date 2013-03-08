@@ -3,21 +3,20 @@ import subprocess
 import re
 import os
 import sys
-########################################################################################
+###########################################################################################################
 #
-# Rid Enum v0.1
-# Rid Cycling Tool 
+# RID Enum v0.1
+# RID Cycling Tool 
 #
 # Written by: David Kennedy (ReL1K)
 # Website: https://www.trustedsec.com
 # Twitter: @TrustedSec
 # Twitter: @dave_rel1k
 #
-# This tool will use rpcclient to cycle through 
-# and identify what rid accounts exist. Uses a few
+# This tool will use rpcclient to cycle through and identify what rid accounts exist. Uses a few
 # different techniques to find the proper RID.
 #
-########################################################################################
+###########################################################################################################
 
 # attempt to use lsa query furst
 def check_user_lsa(ip):
@@ -187,9 +186,11 @@ try:
 	# exit out after we are finished
 	sys.exit()
 
+# except keyboard interrupt
 except KeyboardInterrupt:
 	print "[*] Okay, Okay... Exiting... Thanks for using rid_enum.py"
 
+# except indexerror
 except IndexError:
 	print """
 .______       __   _______         _______ .__   __.  __    __  .___  ___. 
