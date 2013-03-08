@@ -1,4 +1,11 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.2
+~~~~~~~~~~~~~~~~~~~
+
+* removed regular expression import, no longer needed
+* added ability to add spaces within a password and not throw an exception
+
+~~~~~~~~~~~~~~~~~~~
 version 0.1
 ~~~~~~~~~~~~~~~~~~~
 

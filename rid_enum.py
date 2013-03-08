@@ -4,7 +4,7 @@ import os
 import sys
 ###########################################################################################################
 #
-# RID Enum v0.1
+# RID Enum v0.2
 # RID Cycling Tool 
 #
 # Written by: David Kennedy (ReL1K)
@@ -201,7 +201,7 @@ except IndexError:
                             |______|                                       
 
 Written by: David Kennedy (ReL1K)
-Version: 0.1
+Version: 0.2
 Company: https://www.trustedsec.com
 Twitter: @TrustedSec
 Twitter: @Dave_ReL1K
