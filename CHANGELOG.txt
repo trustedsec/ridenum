@@ -3,6 +3,7 @@ version 0.3
 ~~~~~~~~~~~~~~~~~~~
 
 * fixed an issue that if failed it would not properly state it
+* fixed github email address use
 
 ~~~~~~~~~~~~~~~~~~~
 version 0.2
