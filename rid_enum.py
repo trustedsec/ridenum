@@ -81,11 +81,12 @@ try:
 	sid = check_user_lsa(ip)
 	# if lsa enumeration was successful then don't do 
 	if sid != False:
-		print "[*] Successfully enumerated base domain SID.. Moving on to extract via RID"
-		# format it properly
-		sid = sid.rstrip()
-		sid = sid.split(" ")
-		sid = sid[4]
+		if sid != "":
+			print "[*] Successfully enumerated base domain SID.. Moving on to extract via RID"
+			# format it properly
+			sid = sid.rstrip()
+			sid = sid.split(" ")
+			sid = sid[4]
 
 	# if we weren't successful on lsaquery
 	if sid == False:
@@ -98,9 +99,13 @@ try:
 			if sid == False:
 				print "[!] Failed using account name: %s...Attempting another." % (account)
 			else:
-				# success! Break out of the loop
-				print "[*] Successfully enumerated SID account.. Moving on to extract via RID.\n"
-				break
+				if sid != "":
+					# success! Break out of the loop
+					print "[*] Successfully enumerated SID account.. Moving on to extract via RID.\n"
+					break
+				else:
+					print "[!] Failed. Access is denied. Sorry boss."
+					sys.exit()
 
 		# pulling the exact domain SID out
 		sid = sid.split(" ")
@@ -190,7 +195,8 @@ except KeyboardInterrupt:
 	print "[*] Okay, Okay... Exiting... Thanks for using rid_enum.py"
 
 # except indexerror
-except IndexError:
+except IndexError, e:
+
 	print """
 .______       __   _______         _______ .__   __.  __    __  .___  ___. 
 |   _  \     |  | |       \       |   ____||  \ |  | |  |  |  | |   \/   | 
