@@ -178,7 +178,7 @@ try:
 						password = user.split("\\")[1]
 						password = password.upper()
 					child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
-					i = child.expect(['LOGON_FAILURE', 'rpcclient'])
+					i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED'])
 					if i == 0:
 						print "Failed guessing username of %s and password of %s" % (user, password)
 						child.kill(0)
@@ -186,6 +186,8 @@ try:
 						print "[*] Successfully guessed username: %s with password of: %s" % (user, password)
 						success = success + "username: %s password: %s\n" % (user, password)
 						child.kill(0)
+					if i == 2:
+						print "[-] Successfully guessed username: %s with password of: %s however, it is set to expired." % (user, password)
 
 		# if we weren't successful
 		if success == "":

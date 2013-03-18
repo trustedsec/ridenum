@@ -6,6 +6,7 @@ version 0.4
 * removed versioning from rid_enum.py. Only centralizing through changelog.txt
 * rearranged the order for brute forcing, it would start off with password to username versus username to password. It will load a username then attempt password file then move on to the next one
 * added ability to specify uc username or lc username within dictionary file, it will strip domain name and brute force the username only (upper case and lowercase)
+* added ability to detect expired accounts
 
 ~~~~~~~~~~~~~~~~~~~
 version 0.3
