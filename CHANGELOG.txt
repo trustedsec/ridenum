@@ -1,4 +1,11 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.5
+~~~~~~~~~~~~~~~~~~~
+
+* added ability to specify a userlist if you already extracted it previously
+* added ability to see the results prior to brute force being successful
+
+~~~~~~~~~~~~~~~~~~~
 version 0.4
 ~~~~~~~~~~~~~~~~~~~
 
