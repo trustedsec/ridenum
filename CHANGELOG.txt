@@ -1,4 +1,13 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.4
+~~~~~~~~~~~~~~~~~~~
+
+* removed full group name or account names from getting cut off, needed to stringsplit(" ", 1) to replace first with the latter half and strip any other data
+* removed versioning from rid_enum.py. Only centralizing through changelog.txt
+* rearranged the order for brute forcing, it would start off with password to username versus username to password. It will load a username then attempt password file then move on to the next one
+* added ability to specify uc username or lc username within dictionary file, it will strip domain name and brute force the username only (upper case and lowercase)
+
+~~~~~~~~~~~~~~~~~~~
 version 0.3
 ~~~~~~~~~~~~~~~~~~~
 
