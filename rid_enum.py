@@ -33,7 +33,7 @@ def check_user(ip, account):
 	proc = subprocess.Popen('rpcclient -U "" %s -N -c "lookupnames %s"' % (ip,account), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
 	stdout_value=proc.communicate()[0]
 	# if the user wasnt found, return a False
-	if "NT_STATUS_NONE_MAPPED" in stdout_value:
+	if "NT_STATUS_NONE_MAPPED" or "NT_STATUS_CONNECTION_REFUSED" or "NT_STATUS_ACCESS_DENIED" in stdout_value:
 		return False
 	else: 
 		return stdout_value

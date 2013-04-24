@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.6
+~~~~~~~~~~~~~~~~~~~
+
+* added better detection on access denied for RIDENUM
+
+~~~~~~~~~~~~~~~~~~~
 version 0.5
 ~~~~~~~~~~~~~~~~~~~
 
