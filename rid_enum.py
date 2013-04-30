@@ -100,12 +100,11 @@ def sids_to_names(ip, sid, start, stop):
                 rid_account = line.split(" ", 1)[1]
                 # will show during an unhandled request
                 # '00000' are bogus accounts?
-                if rid_account != "request" and '00000' not in rid_account:
+                # only return accounts ie. (1). Everything else should be a group
+                if rid_account != "request" and '00000' not in rid_account and '(1)' in rid_account:
+                    
                     # here we join based on spaces, for example 'Domain Admins' needs to be joined
                     rid_account = rid_account.replace("(1)", "")
-                    rid_account = rid_account.replace("(2)", "")
-                    rid_account = rid_account.replace("(3)", "")
-                    rid_account = rid_account.replace("(4)", "")
                     # return the full domain\username
                     rid_account = rid_account.rstrip()
                     rid_accounts.append(rid_account)
