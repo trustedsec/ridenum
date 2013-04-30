@@ -44,22 +44,30 @@ def check_user(ip, account):
 
 
 # this will do a conversion to find the account name based on rid
-def sid_to_name(ip, sid, rid):
-    proc = subprocess.Popen('rpcclient -U "" %s -N -c "lookupsids %s-%s"' % (ip, sid, rid), stdout=subprocess.PIPE,
+# looks up multiple sid-rids at a time provided a range
+def sids_to_names(ip, sid, start, stop):
+    rid_accounts = []
+    command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
+    command += ' '.join(['%s-%s' % (sid, rid) for rid in range(start, stop)])
+    command += '"'
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
     stdout_value = proc.communicate()[0]
-    if not "*unknown*" in stdout_value:
-        rid_account = stdout_value.split(" ", 1)[1]
-        # will show during an unhandled request
-        if rid_account[1] != "request":
-            # here we join based on spaces, for example 'Domain Admins' needs to be joined
-            rid_account = rid_account.replace("(1)", "")
-            rid_account = rid_account.replace("(2)", "")
-            rid_account = rid_account.replace("(3)", "")
-            rid_account = rid_account.replace("(4)", "")
-            # return the full domain\username
-            rid_account = rid_account.rstrip()
-            return rid_account
+    for line in stdout_value.rstrip().split('\n'):
+        if not "*unknown*" in line:
+            rid_account = line.split(" ", 1)[1]
+            # will show during an unhandled request
+            # '00000' are bogus accounts?
+            if rid_account != "request" and '00000' not in rid_account:
+                # here we join based on spaces, for example 'Domain Admins' needs to be joined
+                rid_account = rid_account.replace("(1)", "")
+                rid_account = rid_account.replace("(2)", "")
+                rid_account = rid_account.replace("(3)", "")
+                rid_account = rid_account.replace("(4)", "")
+                # return the full domain\username
+                rid_account = rid_account.rstrip()
+                rid_accounts.append(rid_account)
+    return rid_accounts
 
 # capture initial input
 success = ""
@@ -156,20 +164,15 @@ try:
         filewrite = file("%s_users.txt" % ip, "a")
 
         # cycle through rid and enumerate the domain
-        while rid_start != rid_stop:
-            sidname = sid_to_name(ip, sid, rid_start)
-            if sidname is not None:
+        sid_names = sids_to_names(ip, sid, rid_start, rid_stop)
+        if sid_names:
+            for name in sid_names:
                 # print the sid
-                print "Account name: " + sidname
+                print "Account name: " + name
                 # write the file out
-                filewrite.write(sidname + "\n")
-
-            # increase rid until we hit our rid_stop
-            rid_start += 1
-
+                filewrite.write(name + "\n")
         # close the file
         filewrite.close()
-
         print "[*] Finished enumerating user accounts... Seemed to be successful."
 
     # if we specified a password list
@@ -256,6 +259,7 @@ except KeyboardInterrupt:
     print "[*] Okay, Okay... Exiting... Thanks for using rid_enum.py"
 
 # except indexerror
+# this is dangerous, should consider changing. It "bubbles" up to the other functions
 except IndexError, e:
 
     print """
