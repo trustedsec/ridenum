@@ -227,7 +227,7 @@ try:
             user_fixed = user.replace("\\", "\\\\")
 
             # if the user isn't blank
-            if not "'" in user:
+            if user:
                 for password in passfile:
                     password = password.rstrip()
                     # if we specify a lowercase username
@@ -251,7 +251,6 @@ try:
                     if i == 1:
                         print "[*] Successfully guessed username: %s with password of: %s" % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
-                        filewrite.close()
                         success = True
                         child.kill(0)
 
@@ -260,7 +259,6 @@ try:
                         print "[-] Successfully guessed username: %s with password of: %s \
                               however, it is set to expired." % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
-                        filewrite.close()
                         success = True
                         child.kill(0)
 
@@ -269,6 +267,7 @@ try:
                         print "[!] Careful. Received a NT_STATUS_ACCOUNT_LOCKED_OUT was detected.. \
                                You may be locking accounts out!"
                         child.kill(0)
+        filewrite.close()
         # if we got lucky
         if success:
             print "[*] We got some accounts, exported results to %s_success_results_txt" % ip
