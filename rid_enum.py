@@ -102,7 +102,6 @@ def sids_to_names(ip, sid, start, stop):
                 # '00000' are bogus accounts?
                 # only return accounts ie. (1). Everything else should be a group
                 if rid_account != "request" and '00000' not in rid_account and '(1)' in rid_account:
-                    
                     # here we join based on spaces, for example 'Domain Admins' needs to be joined
                     rid_account = rid_account.replace("(1)", "")
                     # return the full domain\username
