@@ -43,30 +43,41 @@ def check_user(ip, account):
         return stdout_value
 
 
+# helper function to break a list up into smaller lists
+def chunk(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i+n]
+
+
 # this will do a conversion to find the account name based on rid
 # looks up multiple sid-rids at a time provided a range
 def sids_to_names(ip, sid, start, stop):
     rid_accounts = []
-    command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
-    command += ' '.join(['%s-%s' % (sid, rid) for rid in range(start, stop)])
-    command += '"'
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, shell=True)
-    stdout_value = proc.communicate()[0]
-    for line in stdout_value.rstrip().split('\n'):
-        if not "*unknown*" in line:
-            rid_account = line.split(" ", 1)[1]
-            # will show during an unhandled request
-            # '00000' are bogus accounts?
-            if rid_account != "request" and '00000' not in rid_account:
-                # here we join based on spaces, for example 'Domain Admins' needs to be joined
-                rid_account = rid_account.replace("(1)", "")
-                rid_account = rid_account.replace("(2)", "")
-                rid_account = rid_account.replace("(3)", "")
-                rid_account = rid_account.replace("(4)", "")
-                # return the full domain\username
-                rid_account = rid_account.rstrip()
-                rid_accounts.append(rid_account)
+    ranges = ['%s-%s' % (sid, rid) for rid in range(start, stop)]
+    # os can only handle 5000 or so argument lists or you get argument to long error
+    chunks = list(chunk(ranges, 5000))
+    # run the command for every 5000 sid chunk
+    for c in chunks:
+        command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
+        command += ' '.join(c)
+        command += '"'
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE, shell=True)
+        stdout_value = proc.communicate()[0]
+        for line in stdout_value.rstrip().split('\n'):
+            if not "*unknown*" in line:
+                rid_account = line.split(" ", 1)[1]
+                # will show during an unhandled request
+                # '00000' are bogus accounts?
+                if rid_account != "request" and '00000' not in rid_account:
+                    # here we join based on spaces, for example 'Domain Admins' needs to be joined
+                    rid_account = rid_account.replace("(1)", "")
+                    rid_account = rid_account.replace("(2)", "")
+                    rid_account = rid_account.replace("(3)", "")
+                    rid_account = rid_account.replace("(4)", "")
+                    # return the full domain\username
+                    rid_account = rid_account.rstrip()
+                    rid_accounts.append(rid_account)
     return rid_accounts
 
 # capture initial input
