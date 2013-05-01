@@ -85,9 +85,11 @@ def chunk(l, n):
 def sids_to_names(ip, sid, start, stop):
     rid_accounts = []
     ranges = ['%s-%s' % (sid, rid) for rid in range(start, stop)]
-    # os can only handle 5000 or so argument lists or you get argument to long error
-    chunks = list(chunk(ranges, 5000))
-    # run the command for every 5000 sid chunk
+    # different chunk size for darwin (os x)
+    chunk_size = 2500
+    if sys.platform == 'darwin':
+      chunk_size = 5000
+    chunks = list(chunk(ranges, chunk_size))
     for c in chunks:
         command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
         command += ' '.join(c)
