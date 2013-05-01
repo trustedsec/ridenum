@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.7
+~~~~~~~~~~~~~~~~~~~
+
+* added faster RID enumeration thanks to Tom Steele
+
+~~~~~~~~~~~~~~~~~~~
 version 0.6
 ~~~~~~~~~~~~~~~~~~~
 

@@ -15,6 +15,8 @@ import sys
 # This tool will use rpcclient to cycle through and identify what rid accounts exist. Uses a few
 # different techniques to find the proper RID.
 #
+# Special thanks to Tom Steele for the pull request update and changes.
+#
 #############################################################################################################
 
 
