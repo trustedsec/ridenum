@@ -1,4 +1,18 @@
 ~~~~~~~~~~~~~~~~~~~
+version 0.9
+~~~~~~~~~~~~~~~~~~~
+
+* added better handling if NT_STATUS_ACCESS_DENIED is received post lsaquery
+* added base domain response triggers for lsaquery results if successful
+* fixed a counter issue when access denied from the server was returned
+
+~~~~~~~~~~~~~~~~~~~
+version 0.8
+~~~~~~~~~~~~~~~~~~~
+
+* fixed if unable to enumerate through LSA query return false
+
+~~~~~~~~~~~~~~~~~~~
 version 0.7
 ~~~~~~~~~~~~~~~~~~~
 
