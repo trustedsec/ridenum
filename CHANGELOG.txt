@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.0
+~~~~~~~~~~~~~~~~~~~
+
+* fixed an error message when NT_STATUS_ACCOUNT_DISABLED was thrown
+
+~~~~~~~~~~~~~~~~~~~
 version 0.9
 ~~~~~~~~~~~~~~~~~~~
 

@@ -164,7 +164,7 @@ try:
         # if we weren't successful on lsaquery
         else:
             print "[!] Unable to enumerate through lsaquery, trying default account names.."
-            accounts = ("administrator", "guest", "krbtgt")
+            accounts = ("administrator", "guest", "krbtgt", "root")
             for account in accounts:
                 # check the user account based on tuple
                 sid = check_user(ip, account)
@@ -246,7 +246,7 @@ try:
                         password = password.upper()
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_ACCOUNT_DISABLED'])
 
                     # login failed for this one
                     if i == 0:
