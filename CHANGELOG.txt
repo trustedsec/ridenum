@@ -1,4 +1,11 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.1
+~~~~~~~~~~~~~~~~~~~
+
+* Fixed an issue when lc username was used and would not be a split on \\ domain name would cause ridenum to error out
+* Added NT_STATUS_LOGON_TYPE_NOT_GRANTED for exceptions handling for ridenum
+
+~~~~~~~~~~~~~~~~~~~
 version 1.0
 ~~~~~~~~~~~~~~~~~~~
 

@@ -238,15 +238,19 @@ try:
                     password = password.rstrip()
                     # if we specify a lowercase username
                     if password == "lc username":
-                        password = user.split("\\")[1]
-                        password = password.lower()
+                        try:
+                            password = user.split("\\")[1]
+                            password = password.lower()
+                        except: pass
                     # if we specify a uppercase username
                     if password == "uc username":
-                        password = user.split("\\")[1]
-                        password = password.upper()
+                        try:
+                            password = user.split("\\")[1]
+                            password = password.upper()
+                        except: pass
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_ACCOUNT_DISABLED'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED'])
 
                     # login failed for this one
                     if i == 0:
