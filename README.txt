@@ -14,7 +14,7 @@ Website: https://www.trustedsec.com
                             |______|                                       
 
 
-Rid Enum is a RID cycling attack that attempts to enumerate user accounts through  null sessions and the SID to RID enum. If you specify a password file, it will automatically attempt to brute force the user accounts when its finished enumerating.
+Rid Enum is a RID cycling attack that attempts to enumerate user accounts through null sessions and the SID to RID enum. If you specify a password file, it will automatically attempt to guess the user accounts when its finished enumerating.
 
 - RID_ENUM is open source and uses all standard python libraries minus python-pexpect. -
 
