@@ -3,6 +3,7 @@ version 1.2
 ~~~~~~~~~~~~~~~~~~~
 
 * Added flag status for code received NT_STATUS_PASSWORD_MUST_CHANGE will detect password needs changed and log it
+* Added flag status code for NT_STATUS_BAD_NETWORK_NAME 
 
 ~~~~~~~~~~~~~~~~~~~
 version 1.1
