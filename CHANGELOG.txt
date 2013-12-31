@@ -1,4 +1,11 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.4
+~~~~~~~~~~~~~~~~~~~
+
+* Added better detection on brute force account lockouts
+* Added enumdomusers as a fallback in case rid enumeration fails on Win2k8/2k12 servers.
+
+~~~~~~~~~~~~~~~~~~~
 version 1.3
 ~~~~~~~~~~~~~~~~~~~
 

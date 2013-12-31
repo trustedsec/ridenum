@@ -50,6 +50,8 @@ Usage: ./rid_enum.py <server_ip> <start_rid> <end_rid> <optional_password_file> 
 """
     sys.exit()
 
+# for nt-status-denied
+denied = 0
 
 # attempt to use lsa query first
 def check_user_lsa(ip):
@@ -99,7 +101,10 @@ def sids_to_names(ip, sid, start, stop):
                                 stderr=subprocess.PIPE, shell=True)
         stdout_value = proc.communicate()[0]
         if "NT_STATUS_ACCESS_DENIED" in stdout_value: 
-            print "[![ Server sent NT_STATUS_ACCESS DENIED, unable to extract users."
+            print "[!] Server sent NT_STATUS_ACCESS DENIED, unable to extract users."
+	    global denied
+	    denied = 1
+
             break
         for line in stdout_value.rstrip().split('\n'):
             if not "*unknown*" in line:
@@ -185,8 +190,8 @@ try:
                 sid = sid[:-4]
                 # we has no sids :( exiting
             if sid == False:
-                print "[!] Unable to enumerate user accounts, sorry..Must not be vulnerable."
-                sys.exit()
+		denied = 1
+		print "[!] Failed to enumerate SIDs, pushing on to another method."
 
         print "[*] Enumerating user accounts.. This could take a little while."
         # assign rid start and stop as integers
@@ -209,7 +214,32 @@ try:
                 filewrite.write(name + "\n")
         # close the file
         filewrite.close()
-        print "[*] RID_ENUM has finished enumerating user accounts..."
+	if denied == 0:
+	        print "[*] RID_ENUM has finished enumerating user accounts..."
+
+	# if we failed all other methods, we'll move to enumdomusers
+	if denied == 1:
+		print "[*] Attempting enumdomusers to enumerate users..."
+		proc = subprocess.Popen("rpcclient -U '' -N %s -c 'enumdomusers'" % (ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+		filewrite = file("%s_users.txt" % ip, "a")
+		for line in iter(proc.stdout.readline, ''):
+				if line != '':
+					if "user:" in line:
+						# cycle through
+						line = line.split("rid:")
+						line = line[0].replace("user:[", "").replace("]", "")
+						print line
+						filewrite.write(line + "\n")
+					else: 
+						denied = 2
+						break
+				else: break
+		if denied == 2:
+			print "[!] Sorry. RID_ENUM failed to successfully enumerate users. Bummers."
+
+		if denied == 1:
+			filewrite.close()
+			print "[*] Finished dumping users, saved to %s_users.txt." % (ip)					
 
     # if we specified a password list
     if passwords:
