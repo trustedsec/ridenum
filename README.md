@@ -1,5 +1,5 @@
-RID_ENUM - A simple open source method for performing null session brute forces
-Copyright 2013 TrustedSec
+# RID_ENUM - A simple open source method for performing null session brute forces
+Copyright 2014 TrustedSec
 
 Written by: David Kennedy (ReL1K)
 Twitter: @dave_rel1k and @TrustedSec
