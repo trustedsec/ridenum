@@ -5,7 +5,7 @@ import sys
 #############################################################################################################
 #
 # RID Enum
-# RID Cycling Tool 
+# RID Cycling Tool
 #
 # Written by: David Kennedy (ReL1K)
 # Website: https://www.trustedsec.com
@@ -91,7 +91,7 @@ def sids_to_names(ip, sid, start, stop):
     # different chunk size for darwin (os x)
     chunk_size = 2500
     if sys.platform == 'darwin':
-      chunk_size = 5000
+        chunk_size = 5000
     chunks = list(chunk(ranges, chunk_size))
     for c in chunks:
         command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
@@ -100,24 +100,25 @@ def sids_to_names(ip, sid, start, stop):
         proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE, shell=True)
         stdout_value = proc.communicate()[0]
-        if "NT_STATUS_ACCESS_DENIED" in stdout_value: 
+        if "NT_STATUS_ACCESS_DENIED" in stdout_value:
             print "[!] Server sent NT_STATUS_ACCESS DENIED, unable to extract users."
-	    global denied
-	    denied = 1
+            global denied
+            denied = 1
 
             break
         for line in stdout_value.rstrip().split('\n'):
             if not "*unknown*" in line:
-                rid_account = line.split(" ", 1)[1]
-                # will show during an unhandled request
-                # '00000' are bogus accounts?
-                # only return accounts ie. (1). Everything else should be a group
-                if rid_account != "request" and '00000' not in rid_account and '(1)' in rid_account:
-                    # here we join based on spaces, for example 'Domain Admins' needs to be joined
-                    rid_account = rid_account.replace("(1)", "")
-                    # return the full domain\username
-                    rid_account = rid_account.rstrip()
-                    rid_accounts.append(rid_account)
+                if line != "":
+                    rid_account = line.split(" ", 1)[1]
+                    # will show during an unhandled request
+                    # '00000' are bogus accounts?
+                    # only return accounts ie. (1). Everything else should be a group
+                    if rid_account != "request" and '00000' not in rid_account and '(1)' in rid_account:
+                        # here we join based on spaces, for example 'Domain Admins' needs to be joined
+                        rid_account = rid_account.replace("(1)", "")
+                        # return the full domain\username
+                        rid_account = rid_account.rstrip()
+                        rid_accounts.append(rid_account)
     return rid_accounts
 
 # capture initial input
@@ -190,8 +191,8 @@ try:
                 sid = sid[:-4]
                 # we has no sids :( exiting
             if sid == False:
-		denied = 1
-		print "[!] Failed to enumerate SIDs, pushing on to another method."
+                denied = 1
+                print "[!] Failed to enumerate SIDs, pushing on to another method."
 
         print "[*] Enumerating user accounts.. This could take a little while."
         # assign rid start and stop as integers
@@ -214,32 +215,41 @@ try:
                 filewrite.write(name + "\n")
         # close the file
         filewrite.close()
-	if denied == 0:
-	        print "[*] RID_ENUM has finished enumerating user accounts..."
+        if denied == 0:
+            print "[*] RID_ENUM has finished enumerating user accounts..."
 
-	# if we failed all other methods, we'll move to enumdomusers
-	if denied == 1:
-		print "[*] Attempting enumdomusers to enumerate users..."
-		proc = subprocess.Popen("rpcclient -U '' -N %s -c 'enumdomusers'" % (ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
-		filewrite = file("%s_users.txt" % ip, "a")
-		for line in iter(proc.stdout.readline, ''):
-				if line != '':
-					if "user:" in line:
-						# cycle through
-						line = line.split("rid:")
-						line = line[0].replace("user:[", "").replace("]", "")
-						print line
-						filewrite.write(line + "\n")
-					else: 
-						denied = 2
-						break
-				else: break
-		if denied == 2:
-			print "[!] Sorry. RID_ENUM failed to successfully enumerate users. Bummers."
+        # if we failed all other methods, we'll move to enumdomusers
+        if denied == 1:
+            print "[*] Attempting enumdomusers to enumerate users..."
+            proc = subprocess.Popen("rpcclient -U '' -N %s -c 'enumdomusers'" % (ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            filewrite = file("%s_users.txt" % ip, "a")
+            counter = 0
+            for line in iter(proc.stdout.readline, ''):
+                counter = 1
+                if line != '':
+                    if "user:" in line:
+                        # cycle through
+                        line = line.split("rid:")
+                        line = line[0].replace("user:[", "").replace("]", "")
+                        print line
+                        filewrite.write(line + "\n")
+                    else:
+                        denied = 2
+                        break
+                else:
+                    if counter == 0:
+                        break
 
-		if denied == 1:
-			filewrite.close()
-			print "[*] Finished dumping users, saved to %s_users.txt." % (ip)					
+            # if we had nothing to pull
+            if counter == 0:
+                denied = 2
+
+            if denied == 2:
+                print "[!] Sorry. RID_ENUM failed to successfully enumerate users. Bummers."
+
+            if denied == 1:
+                filewrite.close()
+                print "[*] Finished dumping users, saved to %s_users.txt." % (ip)
 
     # if we specified a password list
     if passwords:
