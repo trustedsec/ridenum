@@ -295,10 +295,12 @@ try:
                         except: pass
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED'])
 
                     # login failed for this one
                     if i == 0:
+                        if "\\" in password:
+                            password = password.split("\\")[1]
                         print "Failed guessing username of %s and password of %s" % (user, password)
                         child.kill(0)
 
@@ -328,6 +330,12 @@ try:
                         filewrite.write("CHANGE PASSWORD NEEDED - username: %s password: %s\n" % (user, password))
                         success = True
                         child.kill(0)
+
+                    if i ==8:
+                        print "[!] Unable to connect to the server. Try again or check networking settings."
+                        print "[!] Exiting RIDENUM..."
+                        success = False
+                        sys.exit()
 
         filewrite.close()
         # if we got lucky

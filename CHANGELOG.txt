@@ -5,6 +5,7 @@ version 1.5
 * Added better handling around when zero status is returned (null) for user accounts
 * Added fail message for when enumdom users wouldn't work right
 * Used reindent to fix spacing issues
+* Added description on the password attempt when lc username is used
 
 ~~~~~~~~~~~~~~~~~~~
 version 1.4
