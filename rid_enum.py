@@ -33,7 +33,7 @@ def usage():
 Written by: David Kennedy (ReL1K)
 Company: https://www.trustedsec.com
 Twitter: @TrustedSec
-Twitter: @Dave_ReL1K
+Twitter: @HackingDave
 
 Rid Enum is a RID cycling attack that attempts to enumerate user accounts through
 null sessions and the SID to RID enum. If you specify a password file, it will
@@ -295,7 +295,7 @@ try:
                         except: pass
                     child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED', 'NT_STATUS_PASSWORD_EXPIRED'])
 
                     # login failed for this one
                     if i == 0:
@@ -336,6 +336,15 @@ try:
                         print "[!] Exiting RIDENUM..."
                         success = False
                         sys.exit()
+
+
+                    # if successful
+                    if i == 9:
+                        print "[*] Successfully guessed username: %s with password of (NOTE IT IS EXPIRED!): %s" % (user, password)
+                        filewrite.write("username: %s password: %s (password expired)\n" % (user, password))
+                        success = True
+                        child.kill(0)
+
 
         filewrite.close()
         # if we got lucky
