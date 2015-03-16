@@ -1,4 +1,16 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.5.3
+~~~~~~~~~~~~~~~~~~~
+
+* added a fix if a blank password was used, it will try that instead of erroring out
+
+~~~~~~~~~~~~~~~~~~~
+version 1.5.2
+~~~~~~~~~~~~~~~~~~~
+
+* password expired found
+
+~~~~~~~~~~~~~~~~~~~
 version 1.5.1
 ~~~~~~~~~~~~~~~~~~~
 

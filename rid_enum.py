@@ -293,7 +293,12 @@ try:
                                 password = password.upper()
                             else: password = user.lower()
                         except: pass
-                    child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
+		    if password != "":
+	                    child = pexpect.spawn("rpcclient -U '%s%%%s' %s" % (user_fixed, password, ip))
+		    # if we are using a blank password
+		    if password == "":
+			    child = pexpect.spawn("rpcclient -U '%s' -N %s" % (user_fixed, ip))
+
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
                                       'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED', 'NT_STATUS_PASSWORD_EXPIRED'])
 
