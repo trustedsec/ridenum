@@ -3,6 +3,7 @@ version 1.5.4
 ~~~~~~~~~~~~~~~~~~~
 
 * added write out if guess is correct but account disabled
+* put automatic success results in instead of waiting until having to complete
 
 ~~~~~~~~~~~~~~~~~~~
 version 1.5.3

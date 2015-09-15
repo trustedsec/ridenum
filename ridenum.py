@@ -265,10 +265,11 @@ try:
             userfile = file("%s_users.txt" % ip, "r").readlines()
 
         # write out the files upon success
-        filewrite = file("%s_success_results.txt" % ip, "a")
+        # filewrite = file("%s_success_results.txt" % ip, "a")
 
         # cycle through username first
         for user in userfile:
+	    filewrite = file("%s_success_results.txt" % ip, "a")
             user = user.rstrip()
             user_fixed = user.replace("\\", "\\\\")
 
@@ -315,12 +316,14 @@ try:
                         print "[*] Successfully guessed username: %s with password of: %s" % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
                         success = True
+			filewrite.close()
                         child.kill(0)
 
                     # if account expired
                     if i == 2:
                         print "[-] Successfully guessed username: %s with password of: %s however, it is set to expired." % (user, password)
                         filewrite.write("username: %s password: %s\n" % (user, password))
+			filewrite.close()
                         success = True
                         child.kill(0)
 
@@ -334,6 +337,7 @@ try:
                     if i == 4:
                         print "[*] Successfully guessed password but needs changed. Username: %s with password of: %s" % (user,password)
                         filewrite.write("CHANGE PASSWORD NEEDED - username: %s password: %s\n" % (user, password))
+			filewrite.close()
                         success = True
                         child.kill(0)
 
@@ -355,6 +359,7 @@ try:
                     if i == 9:
                         print "[*] Successfully guessed username: %s with password of (NOTE IT IS EXPIRED!): %s" % (user, password)
                         filewrite.write("username: %s password: %s (password expired)\n" % (user, password))
+			filewrite.close()
                         success = True
                         child.kill(0)
 
