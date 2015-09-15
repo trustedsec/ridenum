@@ -300,7 +300,8 @@ try:
 			    child = pexpect.spawn("rpcclient -U '%s' -N %s" % (user_fixed, ip))
 
                     i = child.expect(['LOGON_FAILURE', 'rpcclient', 'NT_STATUS_ACCOUNT_EXPIRED',
-                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED', 'NT_STATUS_PASSWORD_EXPIRED'])
+                                      'NT_STATUS_ACCOUNT_LOCKED_OUT', 'NT_STATUS_PASSWORD_MUST_CHANGE', 'NT_STATUS_ACCOUNT_DISABLED', 'NT_STATUS_LOGON_TYPE_NOT_GRANTED', 'NT_STATUS_BAD_NETWORK_NAME', 'NT_STATUS_CONNECTION_REFUSED', 'NT_STATUS_PASSWORD_EXPIRED', 'NT_STATUS_NETWORK_UNREACHABLE'])
+
 
                     # login failed for this one
                     if i == 0:
@@ -336,7 +337,14 @@ try:
                         success = True
                         child.kill(0)
 
-                    if i ==8:
+		   # if account is disabled
+		    if i == 5:
+			print "[*] Account is disabled: %s with password of: %s" % (user, password)
+			filewrite.write("ACCOUNT DISABLED: %s PW: %s\n" % (user,password))
+			success = True
+			child.kill(0)
+
+                    if i ==8 or i == 9:
                         print "[!] Unable to connect to the server. Try again or check networking settings."
                         print "[!] Exiting RIDENUM..."
                         success = False

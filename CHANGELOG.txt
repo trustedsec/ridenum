@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.5.4
+~~~~~~~~~~~~~~~~~~~
+
+* added write out if guess is correct but account disabled
+
+~~~~~~~~~~~~~~~~~~~
 version 1.5.3
 ~~~~~~~~~~~~~~~~~~~
 
