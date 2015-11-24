@@ -57,7 +57,7 @@ denied = 0
 def check_user_lsa(ip):
     # pull the domain via lsaenum
     proc = subprocess.Popen('rpcclient -U "" %s -N -c "lsaquery"' % ip, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, shell=True)
+                             shell=True)
     stdout_value = proc.communicate()[0]
     # if the user wasn't found, return a False
     if not "Domain Sid" in stdout_value:
