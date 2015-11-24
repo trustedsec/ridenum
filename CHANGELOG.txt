@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+verion 1.5.5
+~~~~~~~~~~~~~~~~~~~
+
+* added a replace for a samba warning message - would cause rid extraction to not complete
+
+~~~~~~~~~~~~~~~~~~~
 version 1.5.4
 ~~~~~~~~~~~~~~~~~~~
 
