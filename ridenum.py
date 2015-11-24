@@ -161,6 +161,7 @@ try:
         sid = check_user_lsa(ip)
         # if lsa enumeration was successful then don't do
         if sid:
+	    sid = sid.replace("WARNING: Ignoring invalid value 'share' for parameter 'security'", "")
             print "[*] Successfully enumerated base domain SID. Printing information: \n" + sid.rstrip()
             print "[*] Moving on to extract via RID cycling attack.. "
             # format it properly
@@ -271,7 +272,7 @@ try:
         for user in userfile:
 	    filewrite = file("%s_success_results.txt" % ip, "a")
             user = user.rstrip()
-            user_fixed = user.replace("\\", "\\\\")
+            user_fixed = user.replace("\\", "\\\\").replace("'", "")
 
             # if the user isn't blank
             if user:
