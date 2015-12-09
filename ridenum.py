@@ -39,7 +39,7 @@ Rid Enum is a RID cycling attack that attempts to enumerate user accounts throug
 null sessions and the SID to RID enum. If you specify a password file, it will
 automatically attempt to brute force the user accounts when its finished enumerating.
 
-- RID_ENUM is open source and uses all standard python libraries minus python-pexpect. -
+- RIDENUM is open source and uses all standard python libraries minus python-pexpect. -
 
 You can also specify an already dumped username file, it needs to be in the DOMAINNAME\USERNAME
 format.
@@ -217,7 +217,7 @@ try:
         # close the file
         filewrite.close()
         if denied == 0:
-            print "[*] RID_ENUM has finished enumerating user accounts..."
+            print "[*] RIDENUM has finished enumerating user accounts..."
 
         # if we failed all other methods, we'll move to enumdomusers
         if denied == 1:
@@ -246,7 +246,7 @@ try:
                 denied = 2
 
             if denied == 2:
-                print "[!] Sorry. RID_ENUM failed to successfully enumerate users. Bummers."
+                print "[!] Sorry. RIDENUM failed to successfully enumerate users. Bummers."
 
             if denied == 1:
                 filewrite.close()
@@ -379,4 +379,4 @@ try:
 
 # except keyboard interrupt
 except KeyboardInterrupt:
-    print "[*] Okay, Okay... Exiting... Thanks for using rid_enum.py"
+    print "[*] Okay, Okay... Exiting... Thanks for using ridenum.py"
