@@ -152,7 +152,7 @@ try:
 
     if len(sys.argv) > 6:
         user = sys.argv[6]
-        if not os.path.isfile(userlist): 
+        if not os.path.isfile(user): 
             print "[!] File was not found. Please try a path again."
             sys.exit()
 
