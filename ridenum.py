@@ -141,27 +141,23 @@ try:
         # if its not there then bomb out
         if not os.path.isfile(passwords):
             user = sys.argv[4]
-            #print "[!] File was not found. Please try a path again."
-            #sys.exit()
             passwords = ""
+
     if len(sys.argv) > 5:
         userlist = sys.argv[5]
         if not os.path.isfile(userlist):
-            #print "[!] File was not found. Please try a path again."
-            #sys.exit()
             passwd = sys.argv[5]
             auth = user + "%" + passwd
             userlist = ""
 
-
     if len(sys.argv) > 6:
-        userlist = sys.argv[6]
+        user = sys.argv[6]
         if not os.path.isfile(userlist): 
             print "[!] File was not found. Please try a path again."
             sys.exit()
 
     if len(sys.argv) > 7:
-        user = sys.argv[7]
+        userlist = sys.argv[7]
         if not os.path.isfile(userlist):
             print "[!] File was not found. Please try a path again."
             sys.exit()
