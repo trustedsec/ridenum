@@ -151,8 +151,8 @@ try:
             userlist = ""
 
     if len(sys.argv) > 6:
-        user = sys.argv[6]
-        if not os.path.isfile(user): 
+        passwords = sys.argv[6]
+        if not os.path.isfile(passwords): 
             print "[!] File was not found. Please try a path again."
             sys.exit()
 
