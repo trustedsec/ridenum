@@ -44,9 +44,9 @@ automatically attempt to brute force the user accounts when its finished enumera
 You can also specify an already dumped username file, it needs to be in the DOMAINNAME\USERNAME
 format.
 
-Example: ./ridenum.py 192.168.1.50 500 50000 /root/dict.txt
+Example: ./ridenum.py 192.168.1.50 500 50000 /root/dict.txt /root/user.txt
 
-Usage: ./ridenum.py <server_ip> <start_rid> <end_rid> <optional_password_file> <optional_username_filename>
+Usage: ./ridenum.py <server_ip> <start_rid> <end_rid> <optional_username> <optional_password> <optional_password_file> <optional_username_filename>
 """
     sys.exit()
 
@@ -123,6 +123,8 @@ def sids_to_names(ip, sid, start, stop):
 
 # capture initial input
 success = False
+# used if we specify username and password
+auth = ""
 try:
     if len(sys.argv) < 4:
         usage()
@@ -138,13 +140,35 @@ try:
         passwords = sys.argv[4]
         # if its not there then bomb out
         if not os.path.isfile(passwords):
-            print "[!] File was not found. Please try a path again."
-            sys.exit()
+            user = sys.argv[4]
+            #print "[!] File was not found. Please try a path again."
+            #sys.exit()
+            passwords = ""
     if len(sys.argv) > 5:
         userlist = sys.argv[5]
         if not os.path.isfile(userlist):
+            #print "[!] File was not found. Please try a path again."
+            #sys.exit()
+            passwd = sys.argv[5]
+            auth = user + "%" + passwd
+            userlist = ""
+
+
+    if len(sys.argv) > 6:
+        userlist = sys.argv[6]
+        if not os.path.isfile(userlist): 
             print "[!] File was not found. Please try a path again."
             sys.exit()
+
+    if len(sys.argv) > 7:
+        user = sys.argv[7]
+        if not os.path.isfile(userlist):
+            print "[!] File was not found. Please try a path again."
+            sys.exit()
+
+    # if we specified username and pass
+    if auth != "": nopass = ""
+    else: nopass = "-N"
 
     # check for python pexpect
     try:
@@ -222,7 +246,7 @@ try:
         # if we failed all other methods, we'll move to enumdomusers
         if denied == 1:
             print "[*] Attempting enumdomusers to enumerate users..."
-            proc = subprocess.Popen("rpcclient -U '' -N %s -c 'enumdomusers'" % (ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            proc = subprocess.Popen("rpcclient -U '{0}' {1} {2} -c 'enumdomusers'".format(auth,nopass,ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             filewrite = file("%s_users.txt" % ip, "a")
             counter = 0
             for line in iter(proc.stdout.readline, ''):

@@ -1,4 +1,10 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.6
+~~~~~~~~~~~~~~~~~~~
+
+* added the ability to specify creds if you want to pull the entire domain and do a username/pw dump when null sessions are not available
+
+~~~~~~~~~~~~~~~~~~~
 verion 1.5.5
 ~~~~~~~~~~~~~~~~~~~
 
