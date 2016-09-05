@@ -29,6 +29,7 @@ automatically attempt to brute force the user accounts when its finished enumera
 You can also specify an already dumped username file, it needs to be in the DOMAINNAME\USERNAME
 format.
 
-Example: ./ridenum.py 192.168.1.50 500 50000 /root/dict.txt
+Example: ./ridenum.py 192.168.1.50 500 50000 /root/dict.txt /root/user.txt
 
-Usage: ./ridenum.py <server_ip> <start_rid> <end_rid> <optional_password_file> <optional_username_filename>
+Usage: ./ridenum.py <server_ip> <start_rid> <end_rid> <optional_username> <optional_password> <optional_password_file> <optional_username_filename>
+
