@@ -245,8 +245,9 @@ try:
             proc = subprocess.Popen("rpcclient -U '{0}' {1} {2} -c 'enumdomusers'".format(auth,nopass,ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
             filewrite = open("%s_users.txt" % ip, "a")
             counter = 0
-            for line in iter(proc.stdout.readline, '').decode('utf8'):
+            for line in iter(proc.stdout.readline, ''):
                 counter = 1
+                line = line.decode('utf8')
                 if line != '':
                     if "user:" in line:
                         # cycle through
