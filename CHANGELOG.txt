@@ -1,4 +1,12 @@
 ~~~~~~~~~~~~~~~~~~~
+version 1.7
+~~~~~~~~~~~~~~~~~~~
+
+* move ridenum to python3 (PR)
+* fix issue where authentication via rpc would not work properly (PR)
+* fix rpcclient when using enumdomusers (pipe stdout)
+
+~~~~~~~~~~~~~~~~~~~
 version 1.6
 ~~~~~~~~~~~~~~~~~~~
 

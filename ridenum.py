@@ -254,7 +254,7 @@ try:
         # if we failed all other methods, we'll move to enumdomusers
         if denied == 1:
             print("[*] Attempting enumdomusers to enumerate users...")
-            proc = subprocess.Popen("rpcclient -U '{0}' {1} {2} -c 'enumdomusers'".format(auth,nopass,ip), stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+            proc = subprocess.Popen("rpcclient -U '{0}' {1} {2} -c 'enumdomusers'".format(auth,nopass,ip), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)           
             filewrite = open("%s_users.txt" % ip, "a")
             counter = 0
             for line in iter(proc.stdout.readline, ''):
@@ -265,7 +265,6 @@ try:
                         # cycle through
                         line = line.split("rid:")
                         line = line[0].replace("user:[", "").replace("]", "")
-                        print(line)
                         filewrite.write(line + "\n")
                     else:
                         denied = 2
