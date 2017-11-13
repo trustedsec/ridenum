@@ -75,8 +75,7 @@ def check_user(ip, auth, account):
     if not auth: #do anonymous bind
         command += " -N" #specify no password
 
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
     stdout_value = proc.communicate()[0].decode('utf8')
     # if the user wasn't found, return a False
     if "NT_STATUS_NONE_MAPPED" or "NT_STATUS_CONNECTION_REFUSED" or "NT_STATUS_ACCESS_DENIED" in stdout_value:
@@ -109,8 +108,7 @@ def sids_to_names(ip, auth, sid, start, stop):
         if not auth: #do anonymous bind
             command += " -N" #specify no password
 
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout_value = proc.communicate()[0].decode('utf8')
         if "NT_STATUS_ACCESS_DENIED" in stdout_value:
             print("[!] Server sent NT_STATUS_ACCESS DENIED, unable to extract users.")
