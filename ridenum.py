@@ -54,9 +54,12 @@ Usage: ./ridenum.py <server_ip> <start_rid> <end_rid> <optional_username> <optio
 denied = 0
 
 # attempt to use lsa query first
-def check_user_lsa(ip):
+def check_user_lsa(ip, auth):
     # pull the domain via lsaenum
-    proc = subprocess.Popen('rpcclient -U "" %s -N -c "lsaquery"' % ip, stdout=subprocess.PIPE,
+    command = 'rpcclient -U "%s" %s -c "lsaquery"' % (auth, ip)
+    if not auth: #do anonymous bind
+        command += " -N" #specify no password
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                              shell=True)
     stdout_value = proc.communicate()[0]
     # if the user wasn't found, return a False
@@ -66,8 +69,13 @@ def check_user_lsa(ip):
         return stdout_value
 
 # attempt to lookup an account via rpcclient
-def check_user(ip, account):
-    proc = subprocess.Popen('rpcclient -U "" %s -N -c "lookupnames %s"' % (ip, account), stdout=subprocess.PIPE,
+def check_user(ip, auth, account):
+    command = 'rpcclient -U "" %s -c "lookupnames %s"' % (auth, ip)
+    
+    if not auth: #do anonymous bind
+        command += " -N" #specify no password
+
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE, shell=True)
     stdout_value = proc.communicate()[0]
     # if the user wasn't found, return a False
@@ -85,7 +93,7 @@ def chunk(l, n):
 
 # this will do a conversion to find the account name based on rid
 # looks up multiple sid-rids at a time provided a range
-def sids_to_names(ip, sid, start, stop):
+def sids_to_names(ip, auth, sid, start, stop):
     rid_accounts = []
     ranges = ['%s-%s' % (sid, rid) for rid in range(start, stop)]
     # different chunk size for darwin (os x)
@@ -94,9 +102,13 @@ def sids_to_names(ip, sid, start, stop):
         chunk_size = 5000
     chunks = list(chunk(ranges, chunk_size))
     for c in chunks:
-        command = 'rpcclient -U "" %s -N -c "lookupsids ' % ip
+        command = 'rpcclient -U "%s" %s -c "lookupsids ' % (auth, ip)
         command += ' '.join(c)
+
         command += '"'
+        if not auth: #do anonymous bind
+            command += " -N" #specify no password
+
         proc = subprocess.Popen(command, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE, shell=True)
         stdout_value = proc.communicate()[0]
@@ -178,7 +190,7 @@ try:
     if not userlist:
         print "[*] Attempting lsaquery first...This will enumerate the base domain SID"
         # call the check_user_lsa function and check to see if we can find base SID guid
-        sid = check_user_lsa(ip)
+        sid = check_user_lsa(ip, auth)
         # if lsa enumeration was successful then don't do
         if sid:
 	    sid = sid.replace("WARNING: Ignoring invalid value 'share' for parameter 'security'", "")
@@ -194,7 +206,7 @@ try:
             accounts = ("administrator", "guest", "krbtgt", "root")
             for account in accounts:
                 # check the user account based on tuple
-                sid = check_user(ip, account)
+                sid = check_user(ip, auth, account)
                 # if its false then cycle threw
                 if not sid:
                     print "[!] Failed using account name: %s...Attempting another." % account
@@ -227,7 +239,7 @@ try:
         filewrite = file("%s_users.txt" % ip, "a")
 
         # cycle through rid and enumerate the domain
-        sid_names = sids_to_names(ip, sid, rid_start, rid_stop)
+        sid_names = sids_to_names(ip, auth, sid, rid_start, rid_stop)
         if sid_names:
             for name in sid_names:
                 # print the sid
