@@ -182,7 +182,7 @@ try:
             import pexpect
         # if we don't have it
         except ImportError:
-            print("[!] Sorry boss, python-pexpect is not installed. You need to install this first.")
+            print("[!] Sorry boss, python-pexpect is not installed. This is required when attempting to log in.")
             sys.exit()
 
     # if userlist is being used versus rid enum, then skip all of this
