@@ -56,11 +56,12 @@ denied = 0
 # attempt to use lsa query first
 def check_user_lsa(ip, auth):
     # pull the domain via lsaenum
-    command = 'rpcclient -U "%s" %s -c "lsaquery"' % (auth, ip)
+    command = ["rpcclient", "-U", "{}".format(auth), "{}".format(ip), "-c", "lsaquery"]
+    
     if not auth: #do anonymous bind
-        command += " -N" #specify no password
+        command.append("-N");
     proc = subprocess.Popen(command, stdout=subprocess.PIPE,
-                             shell=True)
+                             shell=False)
     stdout_value = proc.communicate()[0].decode('utf8')
     # if the user wasn't found, return a False
     if not "Domain Sid" in stdout_value:
@@ -70,12 +71,11 @@ def check_user_lsa(ip, auth):
 
 # attempt to lookup an account via rpcclient
 def check_user(ip, auth, account):
-    command = 'rpcclient -U "" %s -c "lookupnames %s"' % (auth, ip)
-    
+    command = ["rpcclient", "-U", "{}".format(auth), "-c", "lookupnames {}".format(ip)]
     if not auth: #do anonymous bind
-        command += " -N" #specify no password
+        command.append("-N"); #specify no password
 
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
     stdout_value = proc.communicate()[0].decode('utf8')
     # if the user wasn't found, return a False
     if "NT_STATUS_NONE_MAPPED" or "NT_STATUS_CONNECTION_REFUSED" or "NT_STATUS_ACCESS_DENIED" in stdout_value:
@@ -101,14 +101,11 @@ def sids_to_names(ip, auth, sid, start, stop):
         chunk_size = 5000
     chunks = list(chunk(ranges, chunk_size))
     for c in chunks:
-        command = 'rpcclient -U "%s" %s -c "lookupsids ' % (auth, ip)
-        command += ' '.join(c)
-
-        command += '"'
+        command = ["rpcclient", "-U", "{}".format(auth), "{}".format(ip), "-c", "lookupsids {}".format(" ".join(c))]
         if not auth: #do anonymous bind
-            command += " -N" #specify no password
+            command.append("-N") #specify no password
 
-        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=False)
         stdout_value = proc.communicate()[0].decode('utf8')
         if "NT_STATUS_ACCESS_DENIED" in stdout_value:
             print("[!] Server sent NT_STATUS_ACCESS DENIED, unable to extract users.")
@@ -253,7 +250,7 @@ try:
         # if we failed all other methods, we'll move to enumdomusers
         if denied == 1:
             print("[*] Attempting enumdomusers to enumerate users...")
-            proc = subprocess.Popen("rpcclient -U '{0}' {1} {2} -c 'enumdomusers'".format(auth,nopass,ip), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)           
+            proc = subprocess.Popen(["rpcclient", "-U", "'{}'".format(auth), "{}".format(nopass), "{}".format(ip), "-c", "enumdomusers"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False)
             filewrite = open("%s_users.txt" % ip, "a")
             counter = 0
             for line in iter(proc.stdout.readline, ''):
